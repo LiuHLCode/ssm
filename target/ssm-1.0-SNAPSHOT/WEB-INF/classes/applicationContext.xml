@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+
+http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-4.3.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+    <!-- 读取 jdbc.properties -->
+    <context:property-placeholder location="classpath:jdbc.properties" />
+    <!-- 配置数据源 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <!--数据库驱动 -->
+        <property name="driverClass" value="${jdbc.driver}" />
+        <!--连接数据库的 url -->
+        <property name="jdbcUrl" value="${jdbc.url}" />
+        <!--连接数据库的用户名 -->
+        <property name="user" value="${jdbc.username}" />
+        <!--连接数据库的密码 -->
+        <property name="password" value="${jdbc.password}" />
+        <!--最大连接数 -->
+        <property name="maxPoolSize" value="${jdbc.maxTotal}" />
+        <!--最小连接数 -->
+        <property name="minPoolSize" value="${jdbc.minPoolSize}" />
+        <!--初始化连接数 -->
+        <property name="initialPoolSize" value="${jdbc.initialSize}" />
+    </bean>
+    <!-- 事务管理器，依赖于数据源 -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <!-- 开启事务注解 -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    <!-- 配置 MyBatis 工厂 SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--注入数据源 -->
+        <property name="dataSource" ref="dataSource" />
+        <!--指定核 MyBatis 心配置文件位置 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+    </bean>
+    <!-- 配置 mapper 扫描器 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="jjvu.jx.mapper" />
+    </bean>
+    <!-- 扫描 Service -->
+    <context:component-scan base-package="jjvu.jx.service.impl" />
+    <!--引入 SpringSecurity 主配置文件-->
+    <import resource="classpath:spring-security.xml"/>
+    <!--加密对象-->
+    <bean id="passwordEncoder"
+          class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+    <!--设置 Spring Security 认证用户信息的来源-->
+    <security:authentication-manager>
+        <security:authentication-provider user-service-ref="userServiceImpl">
+            <!--指定认证使用的加密对象-->
+            <security:password-encoder ref="passwordEncoder"/>
+        </security:authentication-provider>
+    </security:authentication-manager>
+</beans>

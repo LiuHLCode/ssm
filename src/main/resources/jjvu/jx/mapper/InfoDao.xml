@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jjvu.jx.mapper.InfoDao">
+	<select id="findAllMaxMenu" parameterType="Integer"
+		resultType="Info">
+		select * from info where maxid = #{max_id} order by i_id desc limit 0,5
+	</select>
+	<select id="findAllMinMenu" parameterType="Integer"
+		resultType="Info">
+		select * from info where minid = #{min_id} order by i_id desc limit 0,5
+	</select>
+	<select id="findInfoById" parameterType="Integer"
+		resultType="Info">
+		select * from info where i_id = #{i_id}
+	</select>
+	<update id="updateInfoHits" parameterType="Integer">
+		update info <set> hits=hits+1 </set>  where i_id = #{i_id}
+	</update>
+	<select id="findInfoByMaxId" parameterType="Integer"
+		resultType="Info">
+		select * from info where maxid = #{i} order by i_id desc limit 0,5
+	</select>
+	<insert id="addInfo" parameterType="Info">
+		insert into info(title,adddate,author,content,hits,maxid,minid) 
+		values(#{title},#{adddate},#{author},#{content},#{hits},#{maxid},#{minid})
+	</insert>
+	<select id="findInfo" resultType="Info">
+		select * from info 
+	</select>
+	<delete id="delInfo" parameterType="Integer">
+		delete from info where i_id in
+		<!--<foreach item="ids" index="index" collection="array" open="(" separator="," close=") ">
+			#{ids}
+		</foreach>  -->
+		<foreach item="ids" index="index" collection="array" open="(" separator="," close=") ">
+			#{ids}
+		</foreach>
+	</delete>
+	<select id="findInfoByName" parameterType="Info"
+		resultType="Info">
+		select * from info  
+		where title = #{title} and i_id != #{i_id}
+	</select>
+	<update id="editInfo" parameterType="Info">
+		update info set
+		title=#{title},adddate=#{adddate},author=#{author},
+		hits=#{hits},maxid=#{maxid},minid=#{minid}
+		where i_id = #{i_id}
+	</update>
+	<select id="findTotalRecordMax" parameterType="Integer"
+		resultType="Integer">
+		select count(*) from info where maxid=#{max_id} 
+	</select>
+	<select id="findTotalRecordMin" parameterType="Integer"
+		resultType="Integer">
+		select count(*) from info where minid=#{min_id} 
+	</select>
+	<select id="findInfos" parameterType="InfoPage"
+		resultType="Info">
+		select * from info 
+		where maxid = #{id} or minid=#{id}  
+		limit #{pc},#{pagesize}
+	</select>
+</mapper>

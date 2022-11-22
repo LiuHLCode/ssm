@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security.xsd">
+    <!--直接释放无需经过 SpringSecurity 过滤器的静态资源-->
+    <security:http pattern="/css/**" security="none"/>
+    <security:http pattern="/image/**" security="none"/>
+    <security:http pattern="/images/**" security="none"/>
+    <security:http pattern="/images1/**" security="none"/>
+    <security:http pattern="/js/**" security="none"/>
+    <security:http pattern="/ueditor/**" security="none"/>
+
+    <!--
+    auto-config="true" 表示自动加载 springsecurity 的配置文件
+    use-expressions="true" 表示使用 spring 的 el 表达式来配置 springsecurity
+    -->
+    <security:http auto-config="true" use-expressions="true">
+        <security:headers>
+            <security:frame-options disabled="true"/>
+        </security:headers>
+        <security:access-denied-handler error-page="/403.jsp"/>
+        <!--指定 login.jsp 页面可以被匿名访问-->
+        <security:intercept-url pattern="/index.jsp" access="permitAll()"/>
+        <security:intercept-url pattern="/allnews" access="permitAll()"/>
+        <security:intercept-url pattern="/shownews" access="permitAll()"/>
+        <security:intercept-url pattern="/tologin" access="permitAll()"/>
+        <!--
+        pattern="/**" 表示拦截所有资源
+        access="hasAnyRole('ROLE_USER','ROLE_ADMIN')"表示只有有 ROLE_USER 或
+        ROLE_ADMIN 角色才能访问资源
+        -->
+        <security:intercept-url pattern="/**"
+                                access="hasAnyRole('ROLE_USER','ROLE_ADMIN')"/>
+        <!--指定自定义的认证页面-->
+        <!--1. login-page 自定义登录页url,默认为/login-->
+        <!--2. login-processing-url 登录请求拦截的url,也就是form表单提交时指定的action-->
+        <!--3. default-target-url 默认登录成功后跳转的url-->
+        <!--指定自定义的认证页面-->
+        <security:form-login login-page="/tologin"
+                             login-processing-url="/login"
+                             default-target-url="/main"
+                             authentication-failure-url="/failer.jsp"/>
+        <!--指定退出登录后跳转的页面-->
+        <security:logout logout-url="/tologin"
+                         logout-success-url="/tologin"/>
+        <!--禁用 csrf 防护机制-->
+
+    </security:http>
+    <!--设置 Spring Security 认证用户信息的来源-->
+    <security:authentication-manager>
+        <security:authentication-provider>
+            <security:user-service>
+                <security:user name="aa" password="{noop}aa"
+                               authorities="ROLE_USER" />
+                <security:user name="admin" password="{noop}admin"
+                               authorities="ROLE_ADMIN" />
+            </security:user-service>
+        </security:authentication-provider>
+    </security:authentication-manager>
+    <!--设置 Spring Security 认证用户信息的来源-->
+    <security:authentication-manager>
+        <security:authentication-provider user-service-ref="userServiceImpl">
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+</beans>

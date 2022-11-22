@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jjvu.jx.mapper.MenuDao">
+	<resultMap type="Max_Menu" id="menumap">
+		<id property="max_id" column="max_id"/>
+		<result property="max_name" column="max_name"/>
+		<collection property="mList" ofType="Min_Menu">
+			<id property="min_id" column="min_id"/>
+			<result property="min_name" column="min_name"/>
+		</collection>
+	</resultMap>
+	<!--根据 id 查询客户信息 -->
+	<select id="findAllMenu" resultMap="menumap">
+		select *
+		from max_menu max
+		left join min_menu min on max.max_id=min.mm_id
+	</select>
+	
+	<select id="findMaxMenuByName" parameterType="Max_Menu"
+		resultType="Max_Menu">
+		select * from max_menu max where max.max_name = #{max_name}
+	</select>
+	<insert id="addMaxMenu" parameterType="Max_Menu">
+		insert into max_menu(max_name) values(#{max_name})
+	</insert>
+	<delete id="deleteMenu" parameterType="Integer">
+		delete from max_menu where max_id = #{max_id}
+	</delete>
+	<select id="findMeunById" parameterType="Integer"
+		resultType="Max_Menu">
+		select * from max_menu  where max_id = #{max_id}
+	</select>
+	
+	<select id="findMaxMenuByMaxName" parameterType="Max_Menu"
+		resultType="Max_Menu">
+		select * from max_menu  
+		where max_name = #{max_name} and max_id != #{max_id}
+	</select>
+	
+	<update id="editMenu" parameterType="Max_Menu">
+		update max_menu set
+		max_name=#{max_name}
+		where max_id = #{max_id}
+	</update>
+	<select id="findAllMinMenu" parameterType="Integer" resultType="Min_Menu">
+		select *
+		from min_menu 
+		where mm_id=#{max_id}
+	</select>
+	<select id="findMinMenuById" parameterType="Min_Menu"
+		resultType="Min_Menu">
+		select * from min_menu where min_name = #{min_name}
+	</select>
+	<delete id="deleteMinMenu" parameterType="Integer">
+		delete from min_menu where min_id = #{min_id}
+	</delete>
+	<insert id="addMinMenu" parameterType="Min_Menu">
+		insert into min_menu(min_name,mm_id) values(#{min_name},#{mm_id})
+	</insert>
+	<select id="findMinMeunById" parameterType="Integer"
+		resultType="Min_Menu">
+		select * from min_menu  where min_id = #{min_id}
+	</select>
+	<select id="findMinMenuByMaxName" parameterType="Min_Menu"
+		resultType="Min_Menu">
+		select * from min_menu  
+		where min_name = #{min_name} and min_id != #{min_id}
+	</select>
+	<update id="editMinMenu" parameterType="Min_Menu">
+		update min_menu set
+		min_name=#{min_name}
+		where min_id = #{min_id}
+	</update>
+</mapper>
